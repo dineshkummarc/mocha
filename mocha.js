@@ -21,6 +21,15 @@
 		return new Date().getTime();
 	}());
 
+	if (typeof Function.prototype.bind !== 'function') {
+		Function.prototype.bind = function (context) {
+			var fn = this;
+			return function () {
+				fn.apply(context, arguments);
+			};
+		};
+	}
+
 	Mocha = global.Mocha = function (game) {
 		this.game = game;
 		this.canvas = new Mocha.Canvas(this, game.width, game.height);
