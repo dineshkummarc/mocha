@@ -129,7 +129,9 @@
 			};
 			image.src = src;
 		} || function (src, callback) {
-			callback(ImageIO.read(new FileInputStream('./' + src)));
+			spawn(function () {
+				callback(ImageIO.read(new FileInputStream('./' + src)));
+			});
 		}
 	}());
 }());
