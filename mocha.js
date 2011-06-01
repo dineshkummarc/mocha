@@ -17,9 +17,9 @@
 		importPackage(javax.imageio);
 	}
 
-	Mocha = global.Mocha = function (game, width, height) {
+	Mocha = global.Mocha = function (game) {
 		this.game = game;
-		this.canvas = new Mocha.Canvas(this, width, height);
+		this.canvas = new Mocha.Canvas(this, game.width, game.height);
 	};
 
 	Mocha.Canvas = (function () {
@@ -67,6 +67,17 @@
 		} || function (x, y, w, h) {
 			if (this.brush || this.getBrush()) {
 				this.brush.fillRect(x, y, w, h);
+			}
+		};
+	}());
+
+
+	Mocha.Canvas.prototype.drawImage = (function () {
+		return isBrowser && function (image, x, y) {
+			this.brush.drawImage(image, x, y);
+		} || function (image, x, y) {
+			if (this.brush || this.getBrush()) {
+				this.brush.drawImage(image, x, y, null);
 			}
 		};
 	}());
