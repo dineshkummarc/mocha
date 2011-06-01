@@ -44,16 +44,16 @@
 		return isBrowser && function () {
 			return this.brush;
 		} || function () {
-			return this.brush !== null && this.brush || this.frame.getGraphics();
+			return this.brush = (this.brush !== null && this.brush || this.canvas.getGraphics());
 		};
 	}());
 
 	Mocha.Canvas.prototype.setColor = (function () {
-		return isBrowser && function (r, g, b) {
-			this.brush.fillStyle = this.brush.strokeStyle = 'rgb(' + r + ', ' + g + ', ' + b + ')';
-		} || function (r, g, b) {
+		return isBrowser && function (rgb) {
+			this.brush.fillStyle = this.brush.strokeStyle = rgb;
+		} || function (rgb) {
 			if (this.getBrush()) {
-				this.brush.setColor(new Color(r, g, b));
+				this.brush.setColor(new Color(parseInt(rgb.slice(1), 16)));
 			}
 		};
 	}());
@@ -77,7 +77,7 @@
 
 	Mocha.prototype.loop = (function () {
 		return isBrowser && function () {
-			var loop, lastUpdate, now, delta;
+			var loop, lastUpdate, now, delta, update;
 			loop = window.webkitRequestAnimationFrame ||
 				window.mozRequestAnimationFrame ||
 				window.oRequestAnimationFrame ||
@@ -88,7 +88,7 @@
 				};
 			
 			lastUpdate = Date.now();
-			(function update(time) {
+			update = function (time) {
 				now = Date.now();
 				delta = now - lastUpdate;
 				game.update(delta);
@@ -96,7 +96,8 @@
 				lastUpdate = now + 0;
 
 				loop(update);
-			}(Date.now()));
+			}.bind(this);
+			update(Date.now());
 
 		} || function () {
 			spawn(function () {
