@@ -98,8 +98,8 @@
 			update = function (time) {
 				now = Date.now();
 				delta = now - lastUpdate;
-				game.update(delta);
-				game.render(this.canvas);
+				this.game.update(delta);
+				this.game.render(this.canvas);
 				lastUpdate = now + 0;
 
 				loop(update);
@@ -112,8 +112,8 @@
 				while (true) {
 					now = Date.now();
 					delta = now - lastUpdate;
-					game.update(delta);
-					game.render(this.canvas);
+					this.game.update(delta);
+					this.game.render(this.canvas);
 					if (graphics = this.canvas.canvas.getGraphics()) {
 						graphics.drawImage(this.canvas.buffer, 0, 0, null);
 					}
