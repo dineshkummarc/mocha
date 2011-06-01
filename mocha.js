@@ -12,7 +12,9 @@
 	if (!isBrowser) {
 		importPackage(java.awt);
 		importPackage(java.awt.image);
+		importPackage(java.io);
 		importPackage(javax.swing);
+		importPackage(javax.imageio);
 	}
 
 	Mocha = global.Mocha = function (game, width, height) {
@@ -37,6 +39,7 @@
 			this.frame.pack();
 			this.frame.setLocationRelativeTo(null);
 			this.frame.setDefaultCloseOperation(this.frame.EXIT_ON_CLOSE);
+			this.frame.show();
 		};
 	}());
 
@@ -52,7 +55,7 @@
 		return isBrowser && function (rgb) {
 			this.brush.fillStyle = this.brush.strokeStyle = rgb;
 		} || function (rgb) {
-			if (this.getBrush()) {
+			if (this.brush || this.getBrush()) {
 				this.brush.setColor(new Color(parseInt(rgb.slice(1), 16)));
 			}
 		};
@@ -62,7 +65,7 @@
 		return isBrowser && function (x, y, w, h) {
 			this.brush.fillRect(x, y, w, h);
 		} || function (x, y, w, h) {
-			if (this.getBrush()) {
+			if (this.brush || this.getBrush()) {
 				this.brush.fillRect(x, y, w, h);
 			}
 		};
@@ -101,9 +104,7 @@
 
 		} || function () {
 			spawn(function () {
-				this.canvas.frame.show();
 				var now, delta, lastUpdate = Date.now();
-
 				while (true) {
 					now = Date.now();
 					delta = now - lastUpdate;
@@ -113,6 +114,18 @@
 					java.lang.Thread.sleep(10);
 				}
 			}.bind(this));
+		}
+	}());
+
+	Mocha.prototype.loadImage = (function () {
+		return isBrowser && function (src, callback) {
+			var image = new Image();
+			image.onload = function () {
+				callback(image);
+			};
+			image.src = src;
+		} || function (src, callback) {
+			callback(ImageIO.read(new FileInputStream('./' + src)));
 		}
 	}());
 }());
