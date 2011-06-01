@@ -35,6 +35,8 @@
 			this.frame.setTitle(context.game.title || 'Game');
 			this.canvas = new JPanel();
 			this.canvas.setPreferredSize(new Dimension(width, height)); 
+			this.buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			this.brush = this.buffer.createGraphics();
 			this.frame.add(this.canvas);
 			this.frame.pack();
 			this.frame.setLocationRelativeTo(null);
@@ -43,21 +45,12 @@
 		};
 	}());
 
-	Mocha.Canvas.prototype.getBrush = (function () {
-		return isBrowser && function () {
-			return this.brush;
-		} || function () {
-			return this.brush = (this.brush !== null && this.brush || this.canvas.getGraphics());
-		};
-	}());
 
 	Mocha.Canvas.prototype.setColor = (function () {
 		return isBrowser && function (rgb) {
 			this.brush.fillStyle = this.brush.strokeStyle = rgb;
 		} || function (rgb) {
-			if (this.brush || this.getBrush()) {
-				this.brush.setColor(new Color(parseInt(rgb.slice(1), 16)));
-			}
+			this.brush.setColor(new Color(parseInt(rgb.slice(1), 16)));
 		};
 	}());
 
@@ -65,9 +58,7 @@
 		return isBrowser && function (x, y, w, h) {
 			this.brush.fillRect(x, y, w, h);
 		} || function (x, y, w, h) {
-			if (this.brush || this.getBrush()) {
-				this.brush.fillRect(x, y, w, h);
-			}
+			this.brush.fillRect(x, y, w, h);
 		};
 	}());
 
@@ -76,9 +67,7 @@
 		return isBrowser && function (image, x, y) {
 			this.brush.drawImage(image, x, y);
 		} || function (image, x, y) {
-			if (this.brush || this.getBrush()) {
-				this.brush.drawImage(image, x, y, null);
-			}
+			this.brush.drawImage(image, x, y, null);
 		};
 	}());
 
@@ -115,12 +104,16 @@
 
 		} || function () {
 			spawn(function () {
-				var now, delta, lastUpdate = Date.now();
+				var now, delta, lastUpdate = Date.now(), graphics;
 				while (true) {
 					now = Date.now();
 					delta = now - lastUpdate;
 					game.update(delta);
 					game.render(this.canvas);
+					if (graphics = this.canvas.canvas.getGraphics()) {
+						graphics.drawImage(this.canvas.buffer, 0, 0, null);
+					}
+
 					lastUpdate = now + 0;
 					java.lang.Thread.sleep(10);
 				}
