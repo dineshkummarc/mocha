@@ -17,6 +17,10 @@
 		importPackage(javax.imageio);
 	}
 
+	Date.now = Date.now || (function () {
+		return new Date().getTime();
+	}());
+
 	Mocha = global.Mocha = function (game) {
 		this.game = game;
 		this.canvas = new Mocha.Canvas(this, game.width, game.height);
