@@ -9,14 +9,6 @@
 	global = this;
 	document = global.document;
 
-	if (!isBrowser) {
-		importPackage(java.awt);
-		importPackage(java.awt.image);
-		importPackage(java.io);
-		importPackage(javax.swing);
-		importPackage(javax.imageio);
-	}
-
 	Date.now = Date.now || (function () {
 		return new Date().getTime();
 	}());
@@ -43,18 +35,9 @@
 			this.brush = this.canvas.getContext('2d');
 			document.body.appendChild(this.canvas);
 		} || function (context, width, height) {
-			this.frame = new JFrame();
-			this.frame.setResizable(false);
-			this.frame.setTitle(context.game.title || 'Game');
-			this.canvas = new JPanel();
-			this.canvas.setPreferredSize(new Dimension(width, height)); 
-			this.buffer = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
+			this.buffer = new java.awt.image.BufferedImage(width, height, java.awt.image.BufferedImage.TYPE_INT_ARGB);
+			this.applet = MochaApplet;
 			this.brush = this.buffer.createGraphics();
-			this.frame.add(this.canvas);
-			this.frame.pack();
-			this.frame.setLocationRelativeTo(null);
-			this.frame.setDefaultCloseOperation(this.frame.EXIT_ON_CLOSE);
-			this.frame.show();
 		};
 	}());
 
@@ -63,7 +46,7 @@
 		return isBrowser && function (rgb) {
 			this.brush.fillStyle = this.brush.strokeStyle = rgb;
 		} || function (rgb) {
-			this.brush.setColor(new Color(parseInt(rgb.slice(1), 16)));
+			this.brush.setColor(new java.awt.Color(parseInt(rgb.slice(1), 16)));
 		};
 	}());
 
@@ -123,7 +106,7 @@
 					delta = now - lastUpdate;
 					this.game.update(delta);
 					this.game.render(this.canvas);
-					if (graphics = this.canvas.canvas.getGraphics()) {
+					if (graphics = this.canvas.applet.getGraphics()) {
 						graphics.drawImage(this.canvas.buffer, 0, 0, null);
 					}
 
@@ -143,7 +126,7 @@
 			image.src = src;
 		} || function (src, callback) {
 			spawn(function () {
-				callback(ImageIO.read(new FileInputStream('./' + src)));
+				callback(javax.imageio.ImageIO.read(MochaApplet.getClass().getResource(src)));
 			});
 		}
 	}());
